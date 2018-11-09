@@ -14,6 +14,7 @@ var blogSchema = new mongoose.Schema({
     body: String,
     created: {type: Date, default: Date.now}
 });
+
 var Blog = mongoose.model("Blog", blogSchema);
 
 // Blog.create({
@@ -25,10 +26,13 @@ var Blog = mongoose.model("Blog", blogSchema);
 ////////////////////////////////
 ////        Routes         ////
 //////////////////////////////
+
+// ROOT ROUTE
 app.get("/", function(req, res){
     res.redirect("/blogs");
 });
 
+// INDEX ROUTE
 app.get("/blogs", function(req, res){
     Blog.find({}, function(err, blogs){
         if(err){
@@ -40,14 +44,22 @@ app.get("/blogs", function(req, res){
     });
 });
 
-// app.get("/blogs", function(req, res){
-//     res.render("index");
-// });
+// NEW ROUTE
+app.get("/blogs/new", function(req,res){
+    res.render("new");
+});
 
-// title
-// image
-// body
-// created
+// CREATE ROUTE
+app.post("/blogs", function(req, res){
+    Blog.create(req.body.blog, function(err, newBlog){
+        if(err){
+            res.render("new");
+        }
+        else{
+            res.redirect("/blogs");
+        }
+    });
+});
 
 ///////////////////////////////
 
