@@ -1,12 +1,15 @@
-var express      = require("express"),
-    app          = express(),
-    bodyParser   = require ("body-parser")
-    mongoose     = require("mongoose");
+var express           = require("express"),
+    app               = express(),
+    bodyParser        = require ("body-parser"),
+    mongoose          = require("mongoose"),
+    methodOverride    = require("method-override");
 
 mongoose.connect("mongodb://localhost/restful_blog_app", {useNewUrlParser: true});
-app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(express.static("public"));
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(methodOverride("_method"));
+
 
 var blogSchema = new mongoose.Schema({
     title: String,
@@ -16,12 +19,6 @@ var blogSchema = new mongoose.Schema({
 });
 
 var Blog = mongoose.model("Blog", blogSchema);
-
-// Blog.create({
-//     title: "Test Blog",
-//     image: "https://www.manmadekennels.com/wp-content/uploads/2018/11/CHAMPAGNE-FEMALE-PUPPY.jpg",
-//     body: "look at him!"
-// });
 
 ////////////////////////////////
 ////        Routes         ////
@@ -69,6 +66,30 @@ app.get("/blogs/:id", function(req, res){
         }
         else{
             res.render("show", {blog: foundBlog});
+        }
+    });
+});
+
+// EDIT ROUTE
+app.get("/blogs/:id/edit", function(req,res){
+    Blog.findById(req.params.id, function(err, foundBlog){
+        if(err){
+            res.redirect("/blogs");
+        }
+        else{
+            res.render("edit", {blog: foundBlog});
+        }
+    });
+});
+
+// UPDATE ROUTE
+app.put("/blogs/:id", function(req, res){
+    Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updatedBlog){
+        if(err){
+            res.redirect("/blogs");
+        }
+        else{
+            res.redirect("/blogs/" + req.params.id);
         }
     });
 });
